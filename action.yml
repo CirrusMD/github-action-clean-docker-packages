@@ -1,13 +1,23 @@
-name: 'Hello World'
-description: 'Greet someone and record the time'
+name: 'github-action-clean-docker-packages'
+description: 'Cleans Docker packages store in GitHub'
 inputs:
-  who-to-greet:  # id of input
-    description: 'Who to greet'
+  gh-token:
+    description: 'a token that has permissions to read and delete packages'
     required: true
-    default: 'World'
+  num-keep:  # id of input
+    description: 'the number of Docker packages to keep'
+    required: true
+    default: 100
+  docker-package:  # id of input
+    description: 'the package to clean in the GitHub repo'
+    required: true
+  dry-run: # id of input
+    description: 'bool, only print out what would be removed'
+    required: true
+    default: false
 outputs:
-  time: # id of output
-    description: 'The time we greeted you'
+  packages-cleaned: # id of output
+    description: 'The packages that were cleaned/removed'
 runs:
   using: 'node12'
   main: 'src/index.js'
