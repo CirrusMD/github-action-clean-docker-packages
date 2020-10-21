@@ -27,18 +27,17 @@ async function removePackages (ghToken, packageVersion, dryRun = true) {
   } else {
     core.setOutput('packages-cleaned', `removing version: ${packageVersion.ver} with id: ${packageVersion.id}`)
     const removeResult = await graphql.graphql({
-      query: `nukePkg($packageId: String!, $clientID: String!){
-  deletePackageVersion(input: {packageVersionId: $packageId,clientMutationId: $clientId})
-    {
+      query: `mutation deletePackage($packageId: String!, $clientId: String!) {
+  deletePackageVersion(input: {packageVersionId: $packageId, clientMutationId: $clientId}) {
     success
   }
-}
-`,
+}`,
 
       packageId: packageVersion.id,
-      clientID: 'github-action-clean-docker-packages',
+      clientId: 'github-action-clean-docker-packages',
       headers: {
-        authorization: `token ${ghToken}`
+        authorization: `token ${ghToken}`,
+        accept: 'application/vnd.github.package-deletes-preview+json'
       }
     })
     console.log(`remove result: ${removeResult}`)
@@ -55,7 +54,7 @@ async function listPackages (ghToken, repoName, repoOwner, packageName, packageC
         node{
           id,
           name,
-          versions(last:$packageCount, orderBy: {field: CREATED_AT, direction: $listDirection}){
+          versions(first:$packageCount, orderBy: {field: CREATED_AT, direction: $listDirection}){
             edges{
               node{
                 id,
@@ -89,9 +88,11 @@ async function getPackages (ghToken, repoName, repoOwner, packageName, packageCo
   // get just a list of versions and the begin and end of the list
   pkgDescList = pkgDescList.map(buildVersions)
   pkgAscList = pkgAscList.map(buildVersions)
-  let delList = pkgDescList.filter(x => !pkgAscList.includes(x))
-  const keepList = pkgAscList.filter(x => !delList.includes(x))
-  // remote docker-base-layer, this is special
+  const fullList = [...new Set([...pkgDescList, ...pkgAscList])]
+  const keepList = fullList.filter(({ id: id1 }) => pkgDescList.some(({ id: id2 }) => id1 === id2))
+  let delList = fullList.filter(({ id: id1 }) => !keepList.some(({ id: id2 }) => id1 === id2))
+
+  // remove docker-base-layer, this is special
   delList = delList.filter(function (item) {
     return item.ver !== 'docker-base-layer'
   })
