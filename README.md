@@ -30,7 +30,7 @@ a list of packages that were cleaned/removed from the repository
 ## Example usage
 
 ```
-uses: cirrusmd/github-action-clean-docker-packages@v1.0.0
+uses: cirrusmd/github-action-clean-docker-packages@v1.0.2
 with:
   gh-token: ${{ secrets.YOUR_GH_TOKEN_SECRET }}
   docker-package: 'dockerImage'

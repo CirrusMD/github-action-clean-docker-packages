@@ -27,15 +27,15 @@ async function removePackages (ghToken, packageVersion, dryRun = true) {
   } else {
     core.setOutput('packages-cleaned', `removing version: ${packageVersion.ver} with id: ${packageVersion.id}`)
     const removeResult = await graphql.graphql({
-      query: `nukePkg($pkgId: String!, $clientID: String!){
-  deletePackageVersion(input: {packageVersionId: $pkgId,clientMutationId: "$clientId})
+      query: `nukePkg($packageId: String!, $clientID: String!){
+  deletePackageVersion(input: {packageVersionId: $packageId,clientMutationId: $clientId})
     {
     success
   }
 }
 `,
 
-      packageVersion: packageVersion,
+      packageId: packageVersion.id,
       clientID: 'github-action-clean-docker-packages',
       headers: {
         authorization: `token ${ghToken}`
