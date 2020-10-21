@@ -19,7 +19,7 @@ where the package exists.
 
 ### `dry-run`
 
-**Optional** removing packages can be scary so this will show you what we would remove. 
+**Optional** removing packages can be scary so this will show you what we would remove (true/false). 
 
 ## Outputs
 
@@ -29,8 +29,11 @@ a list of packages that were cleaned/removed from the repository
 
 ## Example usage
 
-uses: cirrusmd/github-action-clean-docker-packages@main
+```
+uses: cirrusmd/github-action-clean-docker-packages@v1.0.0
 with:
-  gh-token: 'yourGitHubToken123123'
+  gh-token: ${{ secrets.YOUR_GH_TOKEN_SECRET }}
   docker-package: 'dockerImage'
+  dry-run: true # enable dry-run just to test it 
+```
   
