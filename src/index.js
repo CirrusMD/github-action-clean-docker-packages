@@ -97,13 +97,19 @@ async function getPackages (ghToken, repoName, repoOwner, packageName, packageCo
   })
   return { delList, keepList }
 }
-
+function isTruthy (val) {
+  if (val.toString().toLowerCase() === 'true') {
+    return true
+  } else {
+    return false
+  }
+}
 // main
 async function main () {
   const ghRepo = process.env.GITHUB_REPOSITORY
   const ghToken = core.getInput('gh-token')
-  const numKeep = core.getInput('num-keep')
-  const dryRun = core.getInput('dry-run')
+  const numKeep = parseInt(core.getInput('num-keep'), 10)
+  const dryRun = isTruthy(core.getInput('dry-run'))
   const dockerPackage = core.getInput('docker-package')
   const repoOwner = ghRepo.split('/')[0]
   const repoName = ghRepo.split('/')[1]
