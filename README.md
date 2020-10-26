@@ -1,7 +1,12 @@
 # github-action-clean-docker-packages
 
 This action will clean up the oldest Docker packages hosted on GitHub.  This is intended to be run in the GitHub repo 
-where the package exists. 
+where the package exists. This action differs from others in that it aims to try an keep the most recent 100 (or less)
+packages, as opposed to removing specific versions. 
+
+Please read information on the GraphQL query we use to accomplish this 
+[here](https://docs.github.com/en/free-pro-team@latest/graphql/reference/mutations#deletepackageversion). This 
+mutation is in "preview" as per GitHub docs. 
 
 ## Inputs
 
