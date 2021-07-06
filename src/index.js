@@ -1,5 +1,6 @@
 const core = require('@actions/core')
 const graphql = require('@octokit/graphql')
+
 function getDirection (isDesc) {
   var listDirection
   if (isDesc) {
@@ -9,14 +10,17 @@ function getDirection (isDesc) {
   }
   return listDirection
 }
+
 function buildVersions (value, index, ary) {
   const ver = ary[index].node.version
   const id = ary[index].node.id
   return { ver, id }
 }
+
 async function logPackages (packageVersion, msgHeader) {
   console.log(`${msgHeader}: ${packageVersion.ver} with id: ${packageVersion.id}`)
 }
+
 async function removePackages (ghToken, packageVersion, dryRun = true) {
   if (dryRun) {
     core.setOutput('packages-cleaned', `dry run, would remove: ${packageVersion.ver} with id: ${packageVersion.id}`)
@@ -80,12 +84,10 @@ async function listPackages (ghToken, repoName, repoOwner, packageName, packageC
   )
 
   if (dockerPkg.repository.packages.edges[0].node.versions.edges === undefined) {
-    throw 'Error: Repository has no containers!';
+    throw 'Error: Repository has no containers!'
+    console.log('Error: Repository has no containers!')
+    process.exit(1)
   }
-
-
-  console.log('package list')
-  console.log(dockerPkg.repository.packages.edges)
 
   var currentList   = dockerPkg.repository.packages.edges[0].node.versions.edges
   var paginatedList = dockerPkg.repository.packages.edges[0].node.versions.edges
@@ -164,15 +166,49 @@ async function listPackagesWithPagination (ghToken, repoName, repoOwner, package
   return dockerPkgWithPagination
 }
 
+
+/**
+ * 
+ * @param {string} repoName 
+ * @param {string} repoOwner 
+ * Checks to see if a provided repository exists to avoid further error messages
+ */
+async function checkRepo (ghToken, repoName, repoOwner) {
+  try {
+    const repoExists = await graphql.graphql({
+      query: `query repository($repoName: String!, $repoOwner: String!){
+        repository(name:$repoName, owner:$repoOwner)
+        { name }
+      }`,
+      repoOwner: repoOwner,
+      repoName: repoName,
+      headers: {
+        authorization: `token ${ghToken}`
+      }
+    }
+    )
+
+  return repoExists
+
+  } catch (e) {
+    throw 'Error: Repository was not found! Check the name of your repo.'
+    core.setFailed(`github-action-clean-docker-packages failed for reason: ${e}`)
+    process.exit(1)
+  }
+}
+
 async function getPackages (ghToken, repoName, repoOwner, packageName, packageCount = 100) {
   const token = ghToken
   let pkgDescList = await listPackages(token, repoName, repoOwner, packageName, packageCount, true)
   let pkgAscList = await listPackages(token, repoName, repoOwner, packageName, packageCount, false)
   // get just a list of versions and the begin and end of the list
   pkgDescList = pkgDescList.map(buildVersions)
+
   pkgAscList = pkgAscList.map(buildVersions)
+
   // Smashing the two objects together
   const fullList = [...new Set([...pkgDescList, ...pkgAscList])]
+  console.log(fullList)
   const keepList = fullList.filter(({ id: id1 }) => pkgDescList.some(({ id: id2 }) => id1 === id2))
   let delList = fullList.filter(({ id: id1 }) => !keepList.some(({ id: id2 }) => id1 === id2))
   // remove docker-base-layer, this is special
@@ -198,6 +234,8 @@ async function main () {
   const dockerPackage = core.getInput('docker-package')
   const repoOwner = ghRepo.split('/')[0]
   const repoName = ghRepo.split('/')[1]
+
+  checkRepo(ghToken, repoName, repoOwner)
 
   try {
     const { delList, keepList } = await getPackages(ghToken, repoName, repoOwner, dockerPackage, numKeep)
