@@ -1,3 +1,5 @@
+// this file will go away entirely, keeping for reference if needed
+
 const core = require('@actions/core')
 const graphql = require('@octokit/graphql')
 
