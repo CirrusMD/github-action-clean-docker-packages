@@ -1,5 +1,6 @@
 const core = require('@actions/core')
-const Octokit = require('@octokit/rest')
+// probably dont need le octokit, this is githubs rest client 
+const { Octokit } = require('@octokit/rest')
 
 
 module.exports.isTruthy = function isTruthy (val) {

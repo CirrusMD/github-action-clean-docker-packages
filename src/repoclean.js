@@ -11,14 +11,38 @@ async function main () {
     let ghToken = core.getInput('gh-token') || process.env.GITHUB_TOKEN
     let numKeep = parseInt(core.getInput('num-keep'), 10) || 10
     let dryRun = repoUtil.isTruthy(core.getInput('dry-run') || true)
-    let packageName = core.getInput('package-name') || 'github-action-clean-docker-packages-test '
+    let packageName = core.getInput('package-name') || 'github-action-clean-docker-packages-test'
     let packageType = core.getInput('package-type') || 'container'
     let cfg = new repoConfig(ghRepo, ghToken, numKeep, dryRun, packageName, packageType)
     console.log(util.inspect(cfg, {depth: null}))
     let octoClient = await repoUtil.createOcto(cfg)
-    Promise.all([octoClient]).then((values) => {
-        console.log(`promise values: ${values}`)
+    // Promise.all([octoClient]).then((values) => {
+    //     console.log(`promise values: ${values}`)
+    // })
+    
+
+    // TURN THIS INTO A FUNCTION
+
+    let pkg = await octoClient.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
+        package_type:"container",
+        package_name:"github-action-clean-docker-packages-test",
+        org:"cirrusmd"
+      })
+      
+
+    // forcing the package to resolve
+
+
+      console.log("------BEGIN-------")
+      console.log(util.inspect(pkg.data, {depth: null}))
+      console.log("------END-------")
+    /*
+    await octokit.request('GET /orgs/{org}/packages/{package_type}/{package_name}/versions', {
+    package_type: 'package_type',
+    package_name: 'package_name',
+    org: 'org'
     })
+    */
     //console.log(typeof octoClient)
     //console.log("tacos")
 
