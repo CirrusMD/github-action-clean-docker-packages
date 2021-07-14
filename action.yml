@@ -7,7 +7,7 @@ inputs:
   num-keep:  # id of input
     description: 'the number of Docker packages to keep'
     required: true
-    default: 100
+    default: 600
   package-name:  # id of input
     description: 'the package to clean in the GitHub repo'
     required: true

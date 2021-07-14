@@ -1,3 +1,4 @@
 .idea
 .idea/**
 src/scratch.js
+src/launch.json
