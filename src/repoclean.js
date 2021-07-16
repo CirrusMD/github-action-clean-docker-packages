@@ -7,35 +7,37 @@ const util = require('util')
 async function main () {
     // most config vars fall back on defaults to ease local testing
     // local testing requires that you export/set the env var GITHUB_TOKEN
+    //CirrusMD/github-action-clean-docker-packages"
     let ghRepo = process.env.GITHUB_REPOSITORY || "CirrusMD/github-action-clean-docker-packages"
     let ghToken = core.getInput('gh-token') || process.env.GITHUB_TOKEN
-    let numKeep = parseInt(core.getInput('num-keep'), 10) || 10
+    let numKeep = parseInt(core.getInput('num-keep'), 10) || 2
     let dryRun = repoUtil.isTruthy(core.getInput('dry-run') || true)
+    //github-action-clean-docker-packages-test
     let packageName = core.getInput('package-name') || 'github-action-clean-docker-packages-test'
-    let packageType = core.getInput('package-type') || 'container'
+    let packageType = repoUtil.isValidType(core.getInput('package-type') || 'container')
     let cfg = new repoConfig(ghRepo, ghToken, numKeep, dryRun, packageName, packageType)
     console.log(util.inspect(cfg, {depth: null}))
-    let octoClient = await repoUtil.createOcto(cfg)
+    //let octoClient = await repoUtil.createOcto(cfg)
     // Promise.all([octoClient]).then((values) => {
     //     console.log(`promise values: ${values}`)
     // })
     
+    let pkg = await repoUtil.getPackages(cfg)
+    // console.log("------BEGIN-------")
+    // console.log(util.inspect(okg, {depth: null}))
 
-    // TURN THIS INTO A FUNCTION
+    // console.log(packages.length)
+    // console.log("------END-------")
 
-    let pkg = await octoClient.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
-        package_type:"container",
-        package_name:"github-action-clean-docker-packages-test",
-        org:"cirrusmd"
-      })
-      
+    let pkgKeep = await repoUtil.parsePackages(cfg,pkg)
 
-    // forcing the package to resolve
+    // console.log("------BEGIN-------")
+    // console.log(util.inspect(packages, {depth: null}))
+
+    // console.log(packages.length)
+    // console.log("------END-------")
 
 
-      console.log("------BEGIN-------")
-      console.log(util.inspect(pkg.data, {depth: null}))
-      console.log("------END-------")
     /*
     await octokit.request('GET /orgs/{org}/packages/{package_type}/{package_name}/versions', {
     package_type: 'package_type',
