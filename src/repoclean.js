@@ -5,6 +5,7 @@ const util = require('util');
 
 
 // main
+
 async function main() {
   const ghRepo = process.env.GITHUB_REPOSITORY || 'CirrusMD/github-action-clean-docker-packages';
   const ghToken = core.getInput('gh-token') || process.env.GITHUB_TOKEN;
@@ -29,4 +30,4 @@ async function main() {
   }
 }
 
-main();
+main()

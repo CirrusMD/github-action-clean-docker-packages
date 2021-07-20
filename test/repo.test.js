@@ -17,6 +17,20 @@ describe('Type validation', function() {
         let type = repoUtil.isValidType("contAINER")
         assert.equal(type, 'container')
     })
+<<<<<<< HEAD
+=======
+
+    it("The docker type is correct", function(){
+        let type = repoUtil.isValidType("dOckER")
+        assert.equal(type, 'docker')
+    })
+
+    it("Test fails with an invalid input", function(){
+        expect(function() { repoUtil.isValidType("le_taco")}).to.throw(Error)
+    })
+})
+
+>>>>>>> 468f716e7e8de01f52007f769190a924aa261d5d
 
     it("The docker type is correct", function(){
         let type = repoUtil.isValidType("dOckER")
