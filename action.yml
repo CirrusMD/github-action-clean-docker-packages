@@ -24,4 +24,4 @@ outputs:
     description: 'The packages that were cleaned/removed'
 runs:
   using: 'node12'
-  main: 'src/index.js'
+  main: 'src/repoclean.js'

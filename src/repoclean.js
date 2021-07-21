@@ -16,18 +16,25 @@ async function main() {
   const cfg = new repoConfig(ghRepo, ghToken, numKeep, dryRun, packageName, packageType);
   console.log(util.inspect(cfg, {depth: null}));
 
-  const pkg = await repoUtil.getPackages(cfg);
-  const validPkg = await repoUtil.checkPackages(pkg, cfg);
+  const pkg = await repoUtil.getPackages(cfg).catch((e) => {
+    console.log('unable to get packages: ', e.message);
+  });
+  console.log(`pkg repoUtil is ${pkg}`);
+  const validPkg = await repoUtil.checkPackages(pkg, cfg).catch((e) => {
+    console.log('failed to check package checks', e.message);
+  });
+  console.log(`validPkg is ${validPkg}`);
+
 
   if (validPkg === true) {
     try {
       const pkgKeep = await repoUtil.parsePackages(cfg, pkg);
-      console.log("Keeping the following Packages:")
-      console.log(pkgKeep)
+      console.log('Keeping the following Packages:');
+      console.log(pkgKeep);
     } catch (e) {
       core.setFailed(`github-action-clean-docker-packages failed for reason: ${e}`);
     }
   }
 }
 
-main()
+main();

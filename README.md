@@ -42,3 +42,9 @@ with:
   dry-run: true # enable dry-run just to test it 
 ```
   
+## Packaging: 
+
+1. Make any necessary changes to the src/ and test/ directories.
+2. ensure that ncc is installed ```npm i -g @vercel/ncc```
+3. package ```ncc build src/repoclean.js --license LICENSE```
+4. ensure that dist/ is up-to-date
