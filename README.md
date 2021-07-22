@@ -35,10 +35,16 @@ a list of packages that were cleaned/removed from the repository
 ## Example usage
 
 ```
-uses: cirrusmd/github-action-clean-docker-packages@v1.0.5
+uses: cirrusmd/github-action-clean-docker-packages@v2.0.0
 with:
   gh-token: ${{ secrets.YOUR_GH_TOKEN_SECRET }}
   docker-package: 'dockerImage'
   dry-run: true # enable dry-run just to test it 
 ```
   
+## Packaging: 
+
+1. Make any necessary changes to the src/ and test/ directories.
+2. ensure that ncc is installed ```npm i -g @vercel/ncc```
+3. package ```ncc build src/repoclean.js --license LICENSE```
+4. ensure that dist/ is up-to-date

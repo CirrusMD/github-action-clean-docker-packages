@@ -1,0 +1,28 @@
+name: ci
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Get node version
+        id: get-node-version
+        run: |
+          NODE_VER=$(cat .tool-versions| grep -i nodejs | awk '{print $2}')
+          echo "::set-output name=NODE_VER::${NODE_VER}"
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ steps.get-node-version.outputs.NODE_VER }}
+
+      - name: NPM install
+        run: npm install --dev
+
+      - name: Lint
+        run: $(npm bin)/eslint src/
+
+      - name: Test
+        run: npm run test
