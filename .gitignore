@@ -2,3 +2,4 @@
 .idea/**
 src/scratch.js
 src/launch.json
+node_modules/**
