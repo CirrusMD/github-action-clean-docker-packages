@@ -1,4 +1,5 @@
 const {Octokit} = require('@octokit/rest');
+const util = require('util');
 
 
 async function createOcto(cfg) {
@@ -26,15 +27,21 @@ module.exports.isValidType = function isValidType(val) {
 };
 
 module.exports.getPackages = async function getPackages(cfg) {
-  const octoClient = await createOcto(cfg);
-
+  const octoClient = await createOcto(cfg).catch((e) => {
+    console.log('error from createOcto: ', e.message);
+  });
+  console.log(util.inspect(cfg, {depth: null}));
   const pkg = await octoClient.paginate( await octoClient.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
     package_type: cfg.packageType,
     package_name: cfg.packageName,
     org: cfg.repoOwner,
     state: 'active',
     per_page: 100,
-  }));
+  }).catch((e) => {
+    console.log('error from version get:', e.message);
+  })).catch((e) => {
+    console.log('error from paginate: ', e.message);
+  });
 
 
   // pkgs are returned sorted by most recently created
@@ -66,10 +73,10 @@ module.exports.deletePackages = async function deletePackages(pkg, cfg) {
 
 module.exports.checkPackages = async function checkPackages(pkg, cfg) {
   if (pkg.length <= 10) {
-    throw new Error('Package repository contains less than or equal to 10 packages! Cannot clean repositories with less than 10 packages.');
+    console.log('Package repository contains less than or equal to 10 packages! Cannot clean repositories with less than 10 packages.');
     return false;
   } else if (pkg.length <= cfg.numKeep) {
-    throw new Error('Package repository contains less than or equal the number of packages requested to keep! Cannot clean repositories with less packages than the number requested to keep.');
+    console.log('Package repository contains less than or equal the number of packages requested to keep! Cannot clean repositories with less packages than the number requested to keep.');
     return false;
   } else {
     return true;

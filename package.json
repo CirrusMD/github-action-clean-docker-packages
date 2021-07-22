@@ -2,7 +2,7 @@
   "name": "github-action-clean-docker-packages",
   "version": "1.0.5",
   "description": "",
-  "main": "src/repoclean.js",
+  "main": "src/repoclean .js",
   "keywords": [],
   "author": "",
   "license": "ISC",
