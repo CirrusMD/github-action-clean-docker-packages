@@ -61,7 +61,7 @@ module.exports.parsePackages = async function parsePackages(cfg, pkg) {
 module.exports.deletePackages = async function deletePackages(pkg, cfg) {
   const octoClient = await createOcto(cfg);
 
-  if (dryRun !== true) {
+  if (cfg.dryRun !== true) {
     const result = await octoClient.rest.packages.deletePackageVersionForOrg({
       package_type: pkg.metadata.package_type,
       package_name: cfg.packageName,
