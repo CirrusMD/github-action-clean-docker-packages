@@ -1,5 +1,4 @@
 const {Octokit} = require('@octokit/rest');
-const util = require('util');
 
 
 async function createOcto(cfg) {
@@ -30,7 +29,6 @@ module.exports.getPackages = async function getPackages(cfg) {
   const octoClient = await createOcto(cfg).catch((e) => {
     console.log('error from createOcto: ', e.message);
   });
-  console.log(util.inspect(cfg, {depth: null}));
   const pkg = await octoClient.paginate( await octoClient.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
     package_type: cfg.packageType,
     package_name: cfg.packageName,

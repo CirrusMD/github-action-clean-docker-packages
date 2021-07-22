@@ -1,7 +1,6 @@
 const core = require('@actions/core');
 const repoConfig = require('./repoconfig');
 const repoUtil = require('./repoutil');
-const util = require('util');
 
 
 // main
@@ -14,7 +13,6 @@ async function main() {
   const packageName = core.getInput('package-name') || 'github-action-clean-docker-packages-test';
   const packageType = repoUtil.isValidType(core.getInput('package-type') || 'container');
   const cfg = new repoConfig(ghRepo, ghToken, numKeep, dryRun, packageName, packageType);
-  console.log(util.inspect(cfg, {depth: null}));
 
   const pkg = await repoUtil.getPackages(cfg).catch((e) => {
     console.log('unable to get packages: ', e.message);

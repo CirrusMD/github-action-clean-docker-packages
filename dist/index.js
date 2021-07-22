@@ -5032,7 +5032,6 @@ module.exports = class RepoConfig {
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const {Octokit} = __nccwpck_require__(432);
-const util = __nccwpck_require__(669);
 
 
 async function createOcto(cfg) {
@@ -5063,7 +5062,6 @@ module.exports.getPackages = async function getPackages(cfg) {
   const octoClient = await createOcto(cfg).catch((e) => {
     console.log('error from createOcto: ', e.message);
   });
-  console.log(util.inspect(cfg, {depth: null}));
   const pkg = await octoClient.paginate( await octoClient.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
     package_type: cfg.packageType,
     package_name: cfg.packageName,
@@ -5186,14 +5184,6 @@ module.exports = require("url");
 
 /***/ }),
 
-/***/ 669:
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("util");
-
-/***/ }),
-
 /***/ 761:
 /***/ ((module) => {
 
@@ -5246,7 +5236,6 @@ var __webpack_exports__ = {};
 const core = __nccwpck_require__(838);
 const repoConfig = __nccwpck_require__(999);
 const repoUtil = __nccwpck_require__(73);
-const util = __nccwpck_require__(669);
 
 
 // main
@@ -5259,7 +5248,6 @@ async function main() {
   const packageName = core.getInput('package-name') || 'github-action-clean-docker-packages-test';
   const packageType = repoUtil.isValidType(core.getInput('package-type') || 'container');
   const cfg = new repoConfig(ghRepo, ghToken, numKeep, dryRun, packageName, packageType);
-  console.log(util.inspect(cfg, {depth: null}));
 
   const pkg = await repoUtil.getPackages(cfg).catch((e) => {
     console.log('unable to get packages: ', e.message);
