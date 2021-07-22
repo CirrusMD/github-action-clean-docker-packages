@@ -52,8 +52,7 @@ module.exports.parsePackages = async function parsePackages(cfg, pkg) {
   do {
     const deletePkg = pkg.pop();
     await this.deletePackages(deletePkg, cfg);
-    console.log('Deleted package:');
-    console.log(deletePkg);
+
   } while ((pkg.length - 1) >= cfg.numKeep);
   return pkg;
 };
@@ -68,13 +67,10 @@ module.exports.deletePackages = async function deletePackages(pkg, cfg) {
       package_version_id: pkg.id,
       org: cfg.repoOwner,
     });
+    console.log('Deleted package:', deletePkg);
   } else {
-    const result = pkg
-    console.log("We would have deleted this file:")
-    console.log(result)
+    console.log("We would have deleted this container:", pkg)
   }
-
-  return result;
 };
 
 module.exports.checkPackages = async function checkPackages(pkg, cfg) {
