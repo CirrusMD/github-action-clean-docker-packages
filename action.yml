@@ -7,10 +7,14 @@ inputs:
   num-keep:  # id of input
     description: 'the number of Docker packages to keep'
     required: true
-    default: 100
-  docker-package:  # id of input
+    default: 300
+  package-name:  # id of input
     description: 'the package to clean in the GitHub repo'
     required: true
+  package-type: # id of input
+    description: 'the type of package to clean[container/docker]'
+    required: true
+    default: container
   dry-run: # id of input
     description: 'bool, only print out what would be removed'
     required: true
@@ -20,4 +24,4 @@ outputs:
     description: 'The packages that were cleaned/removed'
 runs:
   using: 'node12'
-  main: 'src/index.js'
+  main: 'dist/index.js'
