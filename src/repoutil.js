@@ -52,7 +52,6 @@ module.exports.parsePackages = async function parsePackages(cfg, pkg) {
   do {
     const deletePkg = pkg.pop();
     await this.deletePackages(deletePkg, cfg);
-
   } while ((pkg.length - 1) >= cfg.numKeep);
   return pkg;
 };
@@ -61,15 +60,16 @@ module.exports.deletePackages = async function deletePackages(pkg, cfg) {
   const octoClient = await createOcto(cfg);
 
   if (cfg.dryRun !== true) {
-    const result = await octoClient.rest.packages.deletePackageVersionForOrg({
+    await octoClient.rest.packages.deletePackageVersionForOrg({
       package_type: pkg.metadata.package_type,
       package_name: cfg.packageName,
       package_version_id: pkg.id,
       org: cfg.repoOwner,
+    }).then((deletePkg) => {
+      console.log('Delete package:', deletePkg);
     });
-    console.log('Deleted package:', deletePkg);
   } else {
-    console.log("We would have deleted this container:", pkg)
+    console.log('We would have deleted this container:', pkg);
   }
 };
 

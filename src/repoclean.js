@@ -19,11 +19,9 @@ async function main() {
   const pkg = await repoUtil.getPackages(cfg).catch((e) => {
     console.log('unable to get packages: ', e.message);
   });
-  console.log(`pkg repoUtil is ${pkg}`);
   const validPkg = await repoUtil.checkPackages(pkg, cfg).catch((e) => {
     console.log('failed to check package checks', e.message);
   });
-  console.log(`validPkg is ${validPkg}`);
 
 
   if (validPkg === true) {

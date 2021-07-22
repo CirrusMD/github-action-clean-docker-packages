@@ -5032,6 +5032,7 @@ module.exports = class RepoConfig {
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const {Octokit} = __nccwpck_require__(432);
+const util = __nccwpck_require__(669);
 
 
 async function createOcto(cfg) {
@@ -5059,15 +5060,21 @@ module.exports.isValidType = function isValidType(val) {
 };
 
 module.exports.getPackages = async function getPackages(cfg) {
-  const octoClient = await createOcto(cfg);
-
+  const octoClient = await createOcto(cfg).catch((e) => {
+    console.log('error from createOcto: ', e.message);
+  });
+  console.log(util.inspect(cfg, {depth: null}));
   const pkg = await octoClient.paginate( await octoClient.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
     package_type: cfg.packageType,
     package_name: cfg.packageName,
     org: cfg.repoOwner,
     state: 'active',
     per_page: 100,
-  }));
+  }).catch((e) => {
+    console.log('error from version get:', e.message);
+  })).catch((e) => {
+    console.log('error from paginate: ', e.message);
+  });
 
 
   // pkgs are returned sorted by most recently created
@@ -5078,8 +5085,6 @@ module.exports.parsePackages = async function parsePackages(cfg, pkg) {
   do {
     const deletePkg = pkg.pop();
     await this.deletePackages(deletePkg, cfg);
-    console.log('Deleted package:');
-    console.log(deletePkg);
   } while ((pkg.length - 1) >= cfg.numKeep);
   return pkg;
 };
@@ -5087,22 +5092,26 @@ module.exports.parsePackages = async function parsePackages(cfg, pkg) {
 module.exports.deletePackages = async function deletePackages(pkg, cfg) {
   const octoClient = await createOcto(cfg);
 
-  const result = await octoClient.rest.packages.deletePackageVersionForOrg({
-    package_type: pkg.metadata.package_type,
-    package_name: cfg.packageName,
-    package_version_id: pkg.id,
-    org: cfg.repoOwner,
-  });
-
-  return result;
+  if (cfg.dryRun !== true) {
+    await octoClient.rest.packages.deletePackageVersionForOrg({
+      package_type: pkg.metadata.package_type,
+      package_name: cfg.packageName,
+      package_version_id: pkg.id,
+      org: cfg.repoOwner,
+    }).then((deletePkg) => {
+      console.log('Delete package:', deletePkg);
+    });
+  } else {
+    console.log('We would have deleted this container:', pkg);
+  }
 };
 
 module.exports.checkPackages = async function checkPackages(pkg, cfg) {
   if (pkg.length <= 10) {
-    throw new Error('Package repository contains less than or equal to 10 packages! Cannot clean repositories with less than 10 packages.');
+    console.log('Package repository contains less than or equal to 10 packages! Cannot clean repositories with less than 10 packages.');
     return false;
   } else if (pkg.length <= cfg.numKeep) {
-    throw new Error('Package repository contains less than or equal the number of packages requested to keep! Cannot clean repositories with less packages than the number requested to keep.');
+    console.log('Package repository contains less than or equal the number of packages requested to keep! Cannot clean repositories with less packages than the number requested to keep.');
     return false;
   } else {
     return true;
@@ -5252,8 +5261,13 @@ async function main() {
   const cfg = new repoConfig(ghRepo, ghToken, numKeep, dryRun, packageName, packageType);
   console.log(util.inspect(cfg, {depth: null}));
 
-  const pkg = await repoUtil.getPackages(cfg);
-  const validPkg = await repoUtil.checkPackages(pkg, cfg);
+  const pkg = await repoUtil.getPackages(cfg).catch((e) => {
+    console.log('unable to get packages: ', e.message);
+  });
+  const validPkg = await repoUtil.checkPackages(pkg, cfg).catch((e) => {
+    console.log('failed to check package checks', e.message);
+  });
+
 
   if (validPkg === true) {
     try {
